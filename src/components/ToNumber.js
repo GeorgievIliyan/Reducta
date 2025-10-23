@@ -1,81 +1,156 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const ToNumber = () => {
-    
-    const [input, setInput] = useState('')
-    const [result, setResult] = useState('')
+    const [input, setInput] = useState('');
+    const [result, setResult] = useState(null);
+    const [prevValue, setPrevValue] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     function calcNumber(number) {
+        let temp = String(number);
+        const inputNum = parseInt(number, 10);
+
+        if (isNaN(inputNum) || temp.length !== 6) {
+            return { type: 'error', message: "Грешка! Комбинацията трябва да е шестцифрен!" };
+        }
+        
         let z = null;
         let flipped = false;
-
-        let temp = String(number);
-        if (temp.length !== 6) {
-            return "Error! Number must be six digits!";
-        }
-
         const actions = [];
-        while (temp.length > 1) {
-            const summed = String(Number(temp[0]) + Number(temp[1]));
-            temp = summed + temp.slice(2);
-            actions.push(temp);
+        
+        let currentString = temp;
+        while (currentString.length > 1) {
+            const summed = String(Number(currentString[0]) + Number(currentString[1]));
+            currentString = summed + currentString.slice(2);
+            actions.push(currentString);
         }
-        const x = temp;
+        const x = currentString;
+        
+        let y = '';
+        if (actions.length >= 2) {
+            y = actions[actions.length - 2]; 
 
-        let y;
-        if (actions.length) {
-            y = actions[actions.length - 2];
             if (Number(y) > 30) {
                 y = y.split("").reverse().join("");
                 flipped = true;
             }
+            
+            if (Number(y) > 28 && !y.includes('exception')) {
+                y = `${y} - exception from the rule`;
+            }
+        }
+        
+        if (actions.length >= 3) {
+            const zCandidate = actions[actions.length - 3];
+            if (Number(zCandidate) <= 28) {
+                z = zCandidate;
+            }
         }
 
-        if (Number(y) > 28) {
-            y = `${y} - exception from the rule`;
-        }
-
-        if (Number(actions[actions.length - 3]) <= 28) {
-            z = actions[actions.length - 3];
-        }
-
-        if (flipped) {
+        let message = '';
+        if (z) {
+            message = `${x}, ${y}`;
             if (z) {
-                return `${x}, ${y} - flipped, ${z}`;
-            } else {
-                return `${x}, ${y} - flipped`;
+                message += `, ${z}`;
             }
         } else {
-            if (z) {
-                return `${x}, ${y}, ${z}`;
-            } else {
-                return `${x}, ${y}`;
-            }
+            message = `${x}, ${y}`;
         }
+        
+        if (flipped) {
+            message += ` (обърнат код)`;
+        }
+
+        return { type: 'success', message: message };
     }
 
     const handleSubmit = (e) => {
-        e.preventDefault()
-        setResult(calcNumber(input))
-        setInput('')
-    }
+        e.preventDefault();
+        if (input.trim() === '') return;
+        
+        setIsLoading(true);
+        setResult(null);
+        setPrevValue(input);
+
+        setTimeout(() => {
+            const calculatedResult = calcNumber(input);
+            setResult(calculatedResult);
+            setInput('');
+            setIsLoading(false);
+        }, 300);
+    };
+    
+    const getResultClasses = (type) => {
+        switch (type) {
+            case 'success':
+                return 'bg-blue-100 text-blue-800 border-blue-300';
+            case 'error':
+                return 'bg-red-100 text-red-700 border-red-300';
+            case 'warning':
+                return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+            default:
+                return 'bg-gray-100 text-gray-700 border-gray-300';
+        }
+    };
+    
+    const getResultIcon = (type) => {
+        switch (type) {
+            case 'success':
+                return 'bi bi-arrow-right-circle-fill';
+            case 'error':
+                return 'bi bi-x-octagon-fill';
+            default:
+                return 'bi bi-info-circle-fill';
+        }
+    };
 
     return (
-        <div>
-            <h2>Digits 👉 class number</h2>
-            <form onSubmit={(e) => handleSubmit(e)}>
+        <div className="space-y-4">
+            <form onSubmit={handleSubmit} className="flex space-x-3">
                 <input 
                     required 
-                    placeholder='######' 
+                    placeholder='Въведете 6 цифри' 
                     type='text'
+                    maxLength='6'
+                    minLength='6'
                     value={input}
-                    onChangeCapture={(e) => setInput(e.target.value)}
+                    onChange={(e) => setInput(e.target.value)}
+                    className="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 shadow-sm outline-none"
                 />
+                <button
+                    type='submit'
+                    disabled={isLoading}
+                    className="px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
+                >
+                    {isLoading ? (
+                        <i className="bi bi-arrow-repeat animate-spin text-xl"></i> 
+                    ) : (
+                        <span><i className="bi bi-calculator mr-2"></i> Изчисли</span>
+                    )}
+                </button>
             </form>
-            
-            <span>{ result }</span>
-        </div>
-    )
-}
 
-export default ToNumber
+            {prevValue && result && (
+                <div className={`p-4 border rounded-lg text-sm transition-all duration-300 ${getResultClasses(result.type)}`}>
+                    <p className='font-medium flex items-center'>
+                        <i className={`${getResultIcon(result.type)} mr-3 text-lg`}></i> 
+                        
+                        {result.type === 'success' ? (
+                            <span>
+                                От кода <span className='font-semibold'>{prevValue}</span> получаваме: 
+                                <span className="font-bold text-lg ml-2">{result.message}</span>
+                            </span>
+                        ) : (
+                            <span>
+                                Резултат за **{prevValue}**: <span className="ml-1">{result.message}</span>
+                            </span>
+                        )}
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default ToNumber;
