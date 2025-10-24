@@ -37,7 +37,7 @@ const ToNumber = () => {
             }
             
             if (Number(y) > 28 && !y.includes('exception')) {
-                y = `${y} - exception from the rule`;
+                y = `${y} - изключение от правилото`;
             }
         }
         
@@ -55,7 +55,7 @@ const ToNumber = () => {
                 message += `, ${z}`;
             }
         } else {
-            message = `${x}, ${y}`;
+            message = `№${x}, №${y}`;
         }
         
         if (flipped) {
@@ -107,7 +107,7 @@ const ToNumber = () => {
 
     return (
         <div className="space-y-4">
-            <form onSubmit={handleSubmit} className="flex space-x-3">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                 <input 
                     required 
                     placeholder='Въведете 6 цифри' 
@@ -116,17 +116,20 @@ const ToNumber = () => {
                     minLength='6'
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    className="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 shadow-sm outline-none"
+                    className="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 shadow-sm outline-none w-full"
                 />
                 <button
                     type='submit'
                     disabled={isLoading}
-                    className="px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="w-full sm:w-auto px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                     {isLoading ? (
                         <i className="bi bi-arrow-repeat animate-spin text-xl"></i> 
                     ) : (
-                        <span><i className="bi bi-calculator mr-2"></i> Изчисли</span>
+                        <>
+                            <i className="bi bi-calculator mr-2"></i> 
+                            <span>Изчисли</span> 
+                        </>
                     )}
                 </button>
             </form>
@@ -138,7 +141,7 @@ const ToNumber = () => {
                         
                         {result.type === 'success' ? (
                             <span>
-                                От кода <span className='font-semibold'>{prevValue}</span> получаваме: 
+                                От комбинацията <span className='font-semibold'>{prevValue}</span> получаваме: 
                                 <span className="font-bold text-lg ml-2">{result.message}</span>
                             </span>
                         ) : (
@@ -150,6 +153,7 @@ const ToNumber = () => {
                 </div>
             )}
         </div>
+
     );
 };
 

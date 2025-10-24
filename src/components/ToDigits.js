@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const ToDigits = () => {
     const [input, setInput] = useState('');
@@ -8,26 +7,49 @@ const ToDigits = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     function reverseCode(studentNum) {
-        const target = parseInt(studentNum, 10);
+        const target = parseInt(studentNum, 10); 
+        
+        let second_one = 0; 
+
         if (isNaN(target) || target < 1 || target > 30) {
             return { type: 'error', message: "Въведете валиден номер на ученик (1–30)." };
         }
 
-        const digitalRoot = (n) => {
-            while (n > 9) {
-                n = String(n)
-                    .split("")
-                    .reduce((a, b) => a + Number(b), 0);
+        const calcXY = (num) => {
+            let current = String(num);
+            const actions = [];
+
+            while (current.length > 1) {
+                const summed = String(Number(current[0]) + Number(current[1]));
+                current = summed + current.slice(2);
+                actions.push(current);
             }
-            return n;
+
+            const x = parseInt(current, 10);
+            let y = null;
+            if (actions.length >= 2) {
+                y = parseInt(actions[actions.length - 2], 10); 
+            }
+
+            return { x, y };
         };
 
-        const root = digitalRoot(target);
-
-        for (let i = 0; i < 10000; i++) {
+        for (let i = 0; i < 20000; i++) {
             const candidate = Math.floor(Math.random() * 900000) + 100000;
-            if (digitalRoot(candidate) === root) {
-                return { type: 'success', message: candidate };
+            const { x, y } = calcXY(candidate);
+
+            if (x === target) { 
+                second_one = y;
+            } else if (y === target) {
+                second_one = x;
+            }
+
+            if (x === target || y === target) {
+                return {
+                    type: 'success',
+                    message: candidate,
+                    second_one: second_one
+                };
             }
         }
 
@@ -79,7 +101,7 @@ const ToDigits = () => {
 
     return (
         <div className="space-y-4">
-            <form onSubmit={handleSubmit} className="flex space-x-3">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                 <input 
                     required 
                     placeholder='Въведете номер (1-30)' 
@@ -88,17 +110,20 @@ const ToDigits = () => {
                     max='30'
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    className="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 shadow-sm outline-none"
+                    className="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 shadow-sm outline-none w-full"
                 />
                 <button
                     type='submit'
                     disabled={isLoading}
-                    className="px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="w-full sm:w-auto px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-150 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                     {isLoading ? (
                         <i className="bi bi-arrow-repeat animate-spin text-xl"></i> 
                     ) : (
-                        <span><i className="bi bi-magic mr-2"></i> Генерирай</span>
+                        <>
+                            <i className="bi bi-magic mr-2"></i> 
+                            <span>Генерирай</span>
+                        </>
                     )}
                 </button>
             </form>
@@ -111,7 +136,8 @@ const ToDigits = () => {
                         {result.type === 'success' ? (
                             <span>
                                 За ученик <span className='font-semibold'>№{prevValue}</span> генерираният код е: 
-                                <span className="font-bold text-lg ml-2">{result.message}</span>
+                                <span className="font-bold text-lg ml-2">{result.message}</span>.
+                                <br/>Потенциален втори: <span className='font-semibold'>№{result.second_one}</span>.
                             </span>
                         ) : (
                             <span>

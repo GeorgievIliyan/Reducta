@@ -1,10 +1,11 @@
+// App.js
 import Modal from './components/Modal.js';
 import ToDigits from './components/ToDigits.js';
 import ToNumber from './components/ToNumber.js';
 
 function App() {
     return (
-        <div className="App min-h-screen bg-gray-50 flex flex-col items-center pt-16 pb-16 font-sans">
+        <div className="App h-full bg-gray-50 flex flex-col items-center justify-center font-sans">
             
             <Modal /> 
             
@@ -25,7 +26,7 @@ function App() {
 
                     <div className='bg-white p-6 rounded-lg border border-gray-200 shadow-md transition duration-300 hover:shadow-lg'>
                         <h2 className='text-xl font-semibold text-blue-600 mb-4 flex items-center'>
-                            <i class="bi bi-arrow-repeat me-3 text-2xl"></i> Конвертиране в Число
+                            <i className="bi bi-arrow-repeat me-3 text-2xl"></i> Конвертиране в Число
                         </h2>
                         <ToNumber />
                     </div>
