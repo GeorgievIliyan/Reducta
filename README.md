@@ -4,7 +4,7 @@
 A web app that allows you to predict numbers and combinations with a digit root calculator and it's reverse logic calculator
 
 ## 🛠️ Testing
-[solv-9.netlify.app](https://solv-9.netlify.app/)
+[reducta](https://reducta.netlify.app/)
 
 ## 🚀 Installation & Setup
 
