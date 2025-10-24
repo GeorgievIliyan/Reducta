@@ -1,4 +1,4 @@
-# ⚛️ Solv-9
+# ⚛️ Reducta
 ## Project Overview
 
 A web app that allows you to predict numbers and combinations with a digit root calculator and it's reverse logic calculator
